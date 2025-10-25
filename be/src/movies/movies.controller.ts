@@ -3,9 +3,10 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
   Delete,
+  Param,
+  ParseIntPipe,
+  Put,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
@@ -15,28 +16,26 @@ import { UpdateMovieDto } from './dto/update-movie.dto';
 export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
 
-  @Post()
-  create(@Body() createMovieDto: CreateMovieDto) {
-    return this.moviesService.create(createMovieDto);
-  }
-
   @Get()
   findAll() {
     return this.moviesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.moviesService.findOne(+id);
+  @Post()
+  async create(@Body() data: CreateMovieDto) {
+    return this.moviesService.create(data);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMovieDto: UpdateMovieDto) {
-    return this.moviesService.update(+id, updateMovieDto);
+  @Put(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateMovieDto,
+  ) {
+    return this.moviesService.update(id, data);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.moviesService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return this.moviesService.remove(id);
   }
 }
