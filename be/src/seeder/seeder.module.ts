@@ -1,11 +1,10 @@
-// src/prisma/seeder.module.ts
-import { Module } from '@nestjs/common';
-import { PrismaModule } from '../prisma.module';
-import { SeederService } from './seeder.service';
+// import { Module } from '@nestjs/common';
+// import { PrismaModule } from '../prisma.module';
+// import { SeederService } from './seeder.service';
 
-@Module({
-  imports: [PrismaModule],
-  providers: [SeederService],
-  exports: [SeederService],
-})
-export class SeederModule {}
+// @Module({
+//   imports: [PrismaModule],
+//   providers: [SeederService],
+//   exports: [SeederService],
+// })
+// export class SeederModule {}
