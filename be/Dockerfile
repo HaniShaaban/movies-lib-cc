@@ -1,21 +1,24 @@
-FROM node:20-alpine
+FROM node:lts-alpine3.17
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Copy package files first for better caching
-COPY package*.json ./
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install dependencies
 RUN npm ci --legacy-peer-deps
+
+# Copy prisma schema
+COPY prisma ./prisma/
+
+# Generate Prisma Client
+RUN npx prisma generate
 
 # Copy source code
 COPY . .
 
-# Build the application
+# Build the NestJS application
 RUN npm run build
 
-# Verify the build output exists
-RUN ls -la dist/
-
-EXPOSE 3000
-
-# Generate Prisma client at runtime and start the application
-CMD ["sh", "-c", "npx prisma generate && node dist/main.js"]
+# Run migrations and start the app
+CMD ["sh", "-c", "npm run db:deploy && node dist/main.js"]

@@ -13,16 +13,22 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   be:
     build:
       context: ./be
     container_name: movies-be
+    restart: unless-stopped
     depends_on:
-      - db
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgres://postgres:postgres@db:5432/movies
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.prod
     ports:
       - "3000:3000"
 
