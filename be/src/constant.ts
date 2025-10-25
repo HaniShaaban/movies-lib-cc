@@ -1,0 +1,26 @@
+export const staticSeed = {
+  genres: [
+    { name: 'Action' },
+    { name: 'Drama' },
+    { name: 'Comedy' },
+    { name: 'Horror' },
+    { name: 'Thriller' },
+    { name: 'Romance' },
+    { name: 'Science Fiction' },
+    { name: 'Fantasy' },
+    { name: 'Animation' },
+    { name: 'Documentary' },
+  ],
+  directors: [
+    { name: 'Christopher Nolan' },
+    { name: 'Steven Spielberg' },
+    { name: 'Quentin Tarantino' },
+    { name: 'Martin Scorsese' },
+    { name: 'James Cameron' },
+    { name: 'Peter Jackson' },
+    { name: 'Ridley Scott' },
+    { name: 'Alfred Hitchcock' },
+    { name: 'Clint Eastwood' },
+    { name: 'Francis Ford Coppola' },
+  ],
+};

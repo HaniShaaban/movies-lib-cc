@@ -1,5 +1,4 @@
 import { defineConfig, env } from 'prisma/config';
-
 import * as dotenv from 'dotenv';
 
 dotenv.config();
