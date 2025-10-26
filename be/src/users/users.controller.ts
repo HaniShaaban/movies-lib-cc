@@ -1,57 +1,52 @@
 import {
   Controller,
   Get,
-  Post,
-  Patch,
+  Put,
   Delete,
-  Body,
   Param,
-  Query,
+  UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
-@ApiTags('users')
 @Controller('users')
-export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
-
-  @Post()
-  @ApiOperation({ summary: 'Create a new user' })
-  @ApiResponse({ status: 201, description: 'User created successfully.' })
-  async create(@Body() data: CreateUserDto) {
-    return this.usersService.create(data);
-  }
+export class UserController {
+  constructor(private userService: UsersService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all users with pagination' })
-  @ApiQuery({ name: 'page', required: false, example: 1 })
-  @ApiQuery({ name: 'limit', required: false, example: 10 })
-  async findAll(@Query('page') page = '1', @Query('limit') limit = '10') {
-    return this.usersService.findAll(Number(page), Number(limit));
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Get user by ID' })
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.findOne(id);
-  }
-
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update user by ID' })
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() data: UpdateUserDto,
-  ) {
-    return this.usersService.update(id, data);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth('JWT-auth')
+  async findAll() {
+    return this.userService.findAll();
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete user by ID' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.remove(id);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth('JWT-auth')
+  async delete(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.remove(id);
+  }
+
+  @Put(':id/promote-to-admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth('JWT-auth')
+  async promoteToAdmin(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.updateRole(id, Role.ADMIN);
+  }
+
+  @Put(':id/demote-to-user')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth('JWT-auth')
+  async demoteToUser(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.updateRole(id, Role.USER);
   }
 }
