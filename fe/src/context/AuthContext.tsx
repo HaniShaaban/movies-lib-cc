@@ -10,18 +10,33 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
+  const storedUser = JSON.parse(localStorage.getItem('user')!);
+  const [user, setUser] = useState<User | null>(storedUser);
+  const [isAuthenticated, setIsAuthenticated] = useState(storedUser !== null);
+    const [token, setToken] = useState(JSON.parse(localStorage.getItem('token')!))
   // Check for existing session on mount
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
+  console.log('savedUser', savedUser)
+
     if (savedUser) {
       const userData = JSON.parse(savedUser);
       setUser(userData);
       setIsAuthenticated(true);
     }
   }, []);
+
+  
+
+  useEffect(() => {
+
+    if (user && token) {
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', JSON.stringify(token));
+    }
+  }, [user, token])
+
+
 
   const login = async (email: string, password: string): Promise<void> => {
       try {
@@ -30,20 +45,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       password
     });
 
-    // Assuming your backend returns user info or token:
     const data = response.data?.user;
 
-    console.log('Login successful:', data);
     setUser(data);
-    setIsAuthenticated(true);
-    localStorage.setItem('user', JSON.stringify(data));
-    localStorage.setItem('token', response.data.access_token);
+    setIsAuthenticated(!!response.data.access_token);
+    // localStorage.setItem('user', JSON.stringify(data));
+    setToken(response.data.access_token);
 
 
   } catch (error: any) {
     console.error('Registration error:', error);
-
-    // Extract backend error message if available
     const message =
       error.response?.data?.message ||
       error.message ||
@@ -104,6 +115,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    token
   };
 
   return (

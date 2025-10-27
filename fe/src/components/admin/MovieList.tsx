@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { Movie } from '../../types/movie';
 import './MovieList.css';
 import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
 
 interface MovieListProps {
   movies: Movie[];
@@ -10,14 +11,12 @@ interface MovieListProps {
 }
 
 const MovieList: React.FC<MovieListProps> = ({ movies, onDelete }) => {
-
+const {token} = useAuth();
 
     const handleDelete = async (movieId: string, movieTitle: string) => {
       if (!window.confirm(`Are you sure you want to delete "${movieTitle}"? This action cannot be undone.`)) {
         return;
       }
-
-      const token = localStorage.getItem('token');
 
       try {
         await axios.delete(`http://localhost:3000/movies/${movieId}`, {

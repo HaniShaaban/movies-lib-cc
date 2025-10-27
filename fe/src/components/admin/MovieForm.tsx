@@ -5,6 +5,7 @@ import axios from 'axios';
 import { genresStatic } from '../../assets/staticContent/genres.static';
 import { directorsStatic } from '../../assets/staticContent/directors.static';
 import './MovieForm.css';
+import { useAuth } from '../../context/AuthContext';
 
 interface MovieFormProps {
   title: string;
@@ -12,6 +13,7 @@ interface MovieFormProps {
 
 const MovieForm: React.FC<MovieFormProps> = ({ title }) => {
   const navigate = useNavigate();
+  const {token} = useAuth()
 
   const [formData, setFormData] = useState<CreateMovieData>({
     title: '',
@@ -75,8 +77,7 @@ const MovieForm: React.FC<MovieFormProps> = ({ title }) => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-
+      
       await axios.post('http://localhost:3000/movies', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
