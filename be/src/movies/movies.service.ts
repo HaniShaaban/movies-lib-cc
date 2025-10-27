@@ -2,18 +2,38 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { PrismaService } from '../prisma.service';
 import { UpdateMovieDto } from './dto/update-movie.dto';
+import { moviesRequest } from './dto/movies.request';
 
 @Injectable()
 export class MoviesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(page: number = 1, limit: number = 10) {
+  async findAll(params: moviesRequest, page: number, limit: number) {
     const skip = (page - 1) * limit;
+    const { query, genreId, directorId } = params;
+
+    const where: any = {};
+
+    if (query) {
+      where.OR = [
+        { title: { contains: query, mode: 'insensitive' } },
+        { synopsis: { contains: query, mode: 'insensitive' } },
+      ];
+    }
+
+    if (directorId) {
+      where.directorId = directorId;
+    }
+
+    if (genreId) {
+      where.genreId = genreId;
+    }
 
     const [movies, total] = await Promise.all([
       this.prisma.movie.findMany({
         skip,
         take: limit,
+        where,
         include: {
           director: true,
           genre: true,
@@ -22,7 +42,7 @@ export class MoviesService {
           createdAt: 'desc',
         },
       }),
-      this.prisma.movie.count(),
+      this.prisma.movie.count({ where }),
     ]);
 
     return {

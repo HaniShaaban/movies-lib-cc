@@ -19,11 +19,13 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { moviesRequest } from './dto/movies.request';
 
 @ApiTags('movies')
 @Controller('movies')
@@ -31,13 +33,28 @@ export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all movies with pagination' })
+  @ApiOperation({
+    summary: 'Get all movies with optional filters and pagination',
+  })
   @ApiResponse({ status: 200, description: 'List of movies' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'query', required: false, type: String })
+  @ApiQuery({ name: 'directorId', required: false, type: Number })
+  @ApiQuery({ name: 'genreId', required: false, type: Number })
   async findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('query') query?: string,
+    @Query('directorId') directorId?: string,
+    @Query('genreId') genreId?: string,
   ) {
-    return this.moviesService.findAll(page, limit);
+    const requestParams = new moviesRequest();
+    requestParams.query = query;
+    requestParams.genreId = genreId ? Number(genreId) : undefined;
+    requestParams.directorId = directorId ? Number(directorId) : undefined;
+
+    return this.moviesService.findAll(requestParams, page, limit);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
