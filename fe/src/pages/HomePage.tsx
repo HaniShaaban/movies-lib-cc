@@ -109,8 +109,9 @@ const HomePage: React.FC = () => {
           ))}
           </select>
         </div>
+      </div>
 
-         <div className="movies-grid">
+        <div className="movies-grid">
           {movies.map(movie => (
             <MovieCard
               key={movie.id}
@@ -118,7 +119,6 @@ const HomePage: React.FC = () => {
             />
           ))}
         </div>
-      </div>
     </div>
   );
 };

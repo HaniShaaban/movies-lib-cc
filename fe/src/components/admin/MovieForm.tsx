@@ -15,6 +15,7 @@ const MovieForm: React.FC<MovieFormProps> = ({ title }) => {
   const navigate = useNavigate();
   const {token} = useAuth()
 
+
   const [formData, setFormData] = useState<CreateMovieData>({
     title: '',
     synopsis: '',

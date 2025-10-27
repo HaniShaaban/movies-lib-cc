@@ -13,11 +13,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const storedUser = JSON.parse(localStorage.getItem('user')!);
   const [user, setUser] = useState<User | null>(storedUser);
   const [isAuthenticated, setIsAuthenticated] = useState(storedUser !== null);
-    const [token, setToken] = useState(JSON.parse(localStorage.getItem('token')!))
-  // Check for existing session on mount
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem('token')
+  );  
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
-  console.log('savedUser', savedUser)
 
     if (savedUser) {
       const userData = JSON.parse(savedUser);
@@ -46,11 +46,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
 
     const data = response.data?.user;
+   let token = response.data.access_token;
+
+    // Parse if it's a JSON string, otherwise use as-is
+    if (typeof token === 'string') {
+      try {
+        token = JSON.parse(token);
+      } catch {
+        // Already a plain string, use as-is
+      }
+    }
 
     setUser(data);
-    setIsAuthenticated(!!response.data.access_token);
+    setIsAuthenticated(!!token);
     // localStorage.setItem('user', JSON.stringify(data));
-    setToken(response.data.access_token);
+    setToken(token);
 
 
   } catch (error: any) {
@@ -76,7 +86,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Assuming your backend returns user info or token:
     const data = response.data?.user;
 
-    console.log('Registration successful:', data);
+    let token = response.data.access_token;
+
+    // Parse if it's a JSON string, otherwise use as-is
+    if (typeof token === 'string') {
+      try {
+        token = JSON.parse(token);
+      } catch {
+        // Already a plain string, use as-is
+      }
+    }
     const newUser: User = {
       id: data.id || Date.now().toString(),
       username: data.email || email,
@@ -86,8 +105,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     setUser(newUser);
     setIsAuthenticated(true);
+    setToken(token);
+
     localStorage.setItem('user', JSON.stringify(newUser));
-    localStorage.setItem('token', response.data.access_token);
+    localStorage.setItem('token',token);
 
   } catch (error: any) {
     console.error('Registration error:', error);
@@ -105,7 +126,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = (): void => {
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('user');
+    localStorage.clear()
   };
 
 

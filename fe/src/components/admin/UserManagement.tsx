@@ -2,20 +2,16 @@ import React, { useState, useEffect } from 'react';
 import type { User } from '../../types/auth';
 import './UserManagement.css';
 import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const {token} = useAuth()
 
     useEffect(() => {
         const fetchUsers = async () => {
           setLoading(true);
-
-          const token = localStorage.getItem('token');
-          if (!token) {
-            setLoading(false);
-            return;
-          }
 
           try {
             const response = await axios.get<{ data: User[] }>(
@@ -40,11 +36,6 @@ const UserManagement: React.FC = () => {
 const handleAssignAdmin = async (userId: string, userName: string) => {
   if (!window.confirm(`Are you sure you want to assign admin role to ${userName}?`)) return;
 
-  const token = localStorage.getItem('token'); // JWT from login
-  if (!token) {
-    alert('No token found. Please login again.');
-    return;
-  }
 
   try {
     await axios.put(

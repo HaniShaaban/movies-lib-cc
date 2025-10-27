@@ -20,5 +20,5 @@ COPY . .
 # Build the NestJS application
 RUN npm run build
 
-# Run migrations and start the app
-CMD ["sh", "-c", "npm run db:deploy && node dist/main.js"]
+# Run migrations, reset DB, seed, and start the app
+CMD ["sh", "-c", "npm run db:deploy && npm run db:seed && node dist/main.js"]
