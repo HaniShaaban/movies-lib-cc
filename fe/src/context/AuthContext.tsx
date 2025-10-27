@@ -97,16 +97,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('user');
   };
 
-  const assignAdmin = async (userId: string): Promise<void> => {
-    // Simulate API call - in real app, this would call your backend
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // In real app, this would update the user's role in the database
-        console.log(`Assigning admin role to user ${userId}`);
-        resolve();
-      }, 1000);
-    });
-  };
 
   const value: AuthContextType = {
     user,
@@ -114,7 +104,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
-    assignAdmin
   };
 
   return (

@@ -32,5 +32,17 @@ services:
     ports:
       - "3000:3000"
 
+
+  fe:
+    build:
+      context: ./fe
+      dockerfile: Dockerfile
+    container_name: movies-fe
+    restart: unless-stopped
+    ports:
+      - "5173:80" 
+    depends_on:
+      - be
+
 volumes:
   pgdata:

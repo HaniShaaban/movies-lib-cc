@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import type { Movie, CreateMovieData } from '../types/movie';
+import type { Movie } from '../types/movie';
 import MovieList from '../components/admin/MovieList';
 import MovieForm from '../components/admin/MovieForm';
 import UserManagement from '../components/admin/UserManagement.tsx';
