@@ -27,11 +27,46 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { moviesRequest } from './dto/movies.request';
 import { PaginatedMoviesResponseDto } from './dto/movie-response.dto';
+import { ElasticsearchService } from 'src/elasticsearch/es.service';
 
 @ApiTags('movies')
 @Controller('movies')
 export class MoviesController {
-  constructor(private readonly moviesService: MoviesService) {}
+  constructor(
+    private readonly moviesService: MoviesService,
+    private readonly esService: ElasticsearchService,
+  ) {}
+
+  @Get('/esindex')
+  @ApiOperation({
+    summary: 'index all movies',
+  })
+  async index() {
+    return this.moviesService.indexAllMovies();
+  }
+
+  @Get('/search')
+  @ApiOperation({
+    summary: 'Get all movies with optional filters and pagination',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of movies',
+    type: PaginatedMoviesResponseDto,
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'query', required: false, type: String })
+  async search(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('query') query?: string,
+  ) {
+    const requestParams = new moviesRequest();
+    requestParams.query = query;
+
+    return this.moviesService.search(requestParams, page, limit);
+  }
 
   @Get()
   @ApiOperation({

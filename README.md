@@ -80,6 +80,7 @@ Create a `.env.prod` file in the root directory:
 ```env
 DATABASE_URL="postgresql://postgres:postgres@db:5432/movies?schema=public"
 JWT_SECRET=e8d692d14546a6103fe4f1fd0ff9b9e4
+ES_URL="http://elasticsearch:9200"
 ```
 
 ### 3. Start all services

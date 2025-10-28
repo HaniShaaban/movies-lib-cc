@@ -4,10 +4,11 @@ import { AppService } from './app.service';
 import { MoviesModule } from './movies/movies.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { ElasticsearchService } from './elasticsearch/es.service';
 
 @Module({
   imports: [AuthModule, MoviesModule, UsersModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ElasticsearchService],
 })
 export class AppModule {}

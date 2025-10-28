@@ -19,6 +19,22 @@ services:
       timeout: 5s
       retries: 5
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
+    container_name: movies-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
   be:
     build:
       context: ./be
@@ -27,11 +43,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
     env_file:
       - .env.prod
     ports:
       - "3000:3000"
-
 
   fe:
     build:
@@ -40,9 +57,10 @@ services:
     container_name: movies-fe
     restart: unless-stopped
     ports:
-      - "5173:80" 
+      - "5173:80"
     depends_on:
       - be
 
 volumes:
   pgdata:
+  esdata:

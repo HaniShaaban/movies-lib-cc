@@ -8,10 +8,55 @@ import { PrismaService } from '../prisma.service';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { moviesRequest } from './dto/movies.request';
 import { MovieResponseDto } from './dto/movie-response.dto';
+import { ElasticsearchService } from 'src/elasticsearch/es.service';
+import { transformMovieToESDocument } from 'src/elasticsearch/es.helper';
+import { MovieESDocument } from 'src/elasticsearch/es.types';
 
 @Injectable()
 export class MoviesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly esService: ElasticsearchService,
+  ) {}
+  async indexAllMovies() {
+    try {
+      const movies: any = await this.prisma.movie.findMany({
+        include: {
+          director: true,
+          genre: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      const moviesEsDocs: MovieESDocument[] = transformMovieToESDocument(
+        movies,
+      ) as MovieESDocument[];
+      await this.esService.bulkIndexMovies(moviesEsDocs);
+
+      return true;
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('Failed to index movies');
+    }
+  }
+
+  async search(params: moviesRequest, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const { query } = params;
+
+    const { data, meta } = await this.esService.searchMovies(
+      query,
+      skip,
+      limit,
+    );
+
+    return {
+      data,
+      meta,
+    };
+  }
 
   async findAll(params: moviesRequest, page: number, limit: number) {
     const skip = (page - 1) * limit;
@@ -98,11 +143,19 @@ export class MoviesService {
         );
       }
 
-      return await this.prisma.movie.create({
+      const newMovie = await this.prisma.movie.create({
         data,
         include: { director: true, genre: true },
       });
+
+      const newMovieESDoc: MovieESDocument = transformMovieToESDocument(
+        newMovie,
+      ) as MovieESDocument;
+      await this.esService.indexMovie(newMovieESDoc);
+
+      return newMovie;
     } catch (error) {
+      console.log(error);
       if (error instanceof NotFoundException) {
         throw error;
       }
