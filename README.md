@@ -184,6 +184,14 @@ On every `docker-compose up`, the database is:
 
 ---
 
+## ElasticSearch
+
+### Overview
+
+Fast text search on movies (title and synopsis)
+
+---
+
 ## Production Deployment
 
 ### Build and start services
