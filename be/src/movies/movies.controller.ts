@@ -26,6 +26,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { moviesRequest } from './dto/movies.request';
+import { PaginatedMoviesResponseDto } from './dto/movie-response.dto';
 
 @ApiTags('movies')
 @Controller('movies')
@@ -36,7 +37,11 @@ export class MoviesController {
   @ApiOperation({
     summary: 'Get all movies with optional filters and pagination',
   })
-  @ApiResponse({ status: 200, description: 'List of movies' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of movies',
+    type: PaginatedMoviesResponseDto,
+  })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'query', required: false, type: String })

@@ -16,11 +16,8 @@ export class UsersService {
     });
   }
 
-  async findAll(page = 1, limit = 10) {
-    const skip = (page - 1) * limit;
+  async findAll() {
     const users = await this.prisma.user.findMany({
-      skip,
-      take: limit,
       select: {
         id: true,
         name: true,
@@ -30,7 +27,7 @@ export class UsersService {
       },
     });
     const total = await this.prisma.user.count();
-    return { total, page, limit, data: users };
+    return { total, data: users };
   }
 
   async findOne(id: number) {
