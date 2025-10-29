@@ -188,7 +188,19 @@ On every `docker-compose up`, the database is:
 
 ### Overview
 
-Fast text search on movies (title and synopsis)
+Movie Search /search
+
+The backend integrates Elasticsearch to enable fast, flexible movie search by title and synopsis.
+
+How it works:
+
+Uses a bool query with wildcard filters for partial, case-insensitive matches.
+
+Falls back to match_all if no query is provided.
+
+Supports pagination (page, limit) and returns metadata.
+
+Results are sorted by createdAt (newest first).
 
 ---
 

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
@@ -14,13 +15,14 @@ import { MovieESDocument } from 'src/elasticsearch/es.types';
 
 @Injectable()
 export class MoviesService {
+  private readonly logger = new Logger(MoviesService.name);
   constructor(
     private readonly prisma: PrismaService,
     private readonly esService: ElasticsearchService,
   ) {}
   async indexAllMovies() {
     try {
-      const movies: any = await this.prisma.movie.findMany({
+      const movies = await this.prisma.movie.findMany({
         include: {
           director: true,
           genre: true,
@@ -37,7 +39,7 @@ export class MoviesService {
 
       return true;
     } catch (error) {
-      console.log(error);
+      this.logger.error('Failed to index movies', error.stack);
       throw new BadRequestException('Failed to index movies');
     }
   }
@@ -155,7 +157,8 @@ export class MoviesService {
 
       return newMovie;
     } catch (error) {
-      console.log(error);
+      this.logger.error('Failed to create movie', error.stack);
+
       if (error instanceof NotFoundException) {
         throw error;
       }
@@ -185,6 +188,7 @@ export class MoviesService {
 
       return this.prisma.movie.delete({ where: { id } });
     } catch (error) {
+      this.logger.error('Failed to remove movies', error.stack);
       throw new BadRequestException('Failed to delete movie');
     }
   }

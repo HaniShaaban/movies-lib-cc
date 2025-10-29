@@ -23,7 +23,7 @@ const HomePage: React.FC = () => {
 
         const params: any = {
           page: 1,
-          limit: 3
+          limit: 10
         };
         if (filterGenre) params.genreId = filterGenre;
         if (filterDirector) params.directorId = filterDirector;
