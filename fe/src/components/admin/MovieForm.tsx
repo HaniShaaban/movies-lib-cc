@@ -13,7 +13,7 @@ interface MovieFormProps {
 
 const MovieForm: React.FC<MovieFormProps> = ({ title }) => {
   const navigate = useNavigate();
-  const {token} = useAuth()
+  const { token } = useAuth()
 
 
   const [formData, setFormData] = useState<CreateMovieData>({
@@ -78,13 +78,14 @@ const MovieForm: React.FC<MovieFormProps> = ({ title }) => {
     }
 
     try {
-      
+
       await axios.post('http://localhost:3000/movies', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      navigate('/admin/movies');
+      // navigate('/admin/movies');
+      window.location.href = '/admin/movies'
     } catch (err) {
       console.error(err);
       setError('Failed to save movie. Please try again.');

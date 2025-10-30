@@ -6,7 +6,7 @@ import MovieList from '../components/admin/MovieList';
 import MovieForm from '../components/admin/MovieForm';
 import UserManagement from '../components/admin/UserManagement.tsx';
 import './AdminDashboard.css';
-import axios from 'axios';
+import { fetchMovies } from '../api/movies.api.ts';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -15,26 +15,16 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
 
-    useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        setLoading(true);
+  const fetchMoviesFn = async () => {
+    const moviesResponse: any = await fetchMovies();
+    setMovies(moviesResponse?.data?.data)
+    setLoading(false)
+  }
 
-        const params: any = {
-          page: 1,
-          limit: 3
-        };
-        
-        const response = await axios.get<{data: Movie[]}>('http://localhost:3000/movies', { params });
-        setMovies(response.data?.data);
-      } catch (error) {
-        console.error('Error fetching movies:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchMovies();
+  useEffect(() => {
+    setLoading(true)
+    fetchMoviesFn()
   }, []);
 
 
@@ -61,20 +51,20 @@ const AdminDashboard: React.FC = () => {
 
       <div className="admin-layout">
         <nav className="admin-sidebar">
-          <Link 
-            to="/admin/movies" 
+          <Link
+            to="/admin/movies"
             className={`sidebar-link ${isActive('/admin/movies') ? 'active' : ''}`}
           >
             🎬 Movies
           </Link>
-          <Link 
-            to="/admin/movies/new" 
+          <Link
+            to="/admin/movies/new"
             className={`sidebar-link ${isActive('/admin/movies/new') ? 'active' : ''}`}
           >
             ➕ Add Movie
           </Link>
-          <Link 
-            to="/admin/users" 
+          <Link
+            to="/admin/users"
             className={`sidebar-link ${isActive('/admin/users') ? 'active' : ''}`}
           >
             👥 Users
@@ -83,26 +73,26 @@ const AdminDashboard: React.FC = () => {
 
         <main className="admin-content">
           <Routes>
-            <Route 
-              path="/movies" 
+            <Route
+              path="/movies"
               element={
-                <MovieList 
+                <MovieList
                   movies={movies}
                   onDelete={handleDeleteMovie}
                 />
-              } 
+              }
             />
-            <Route 
-              path="/movies/new" 
+            <Route
+              path="/movies/new"
               element={
-                <MovieForm 
+                <MovieForm
                   title="Add New Movie"
                 />
-              } 
+              }
             />
-            <Route 
-              path="/users" 
-              element={<UserManagement />} 
+            <Route
+              path="/users"
+              element={<UserManagement />}
             />
           </Routes>
         </main>
